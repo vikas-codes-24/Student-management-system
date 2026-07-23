@@ -1,8 +1,10 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
 import { InstituteLayout } from "../layouts/InstituteLayout";
 import { SuperAdminLayout } from "../layouts/SuperAdminLayout";
+import { TeacherLayout } from "../layouts/TeacherLayout";
 import { AuthLayout } from "../layouts/AuthLayout";
 
 // Auth pages
@@ -65,7 +67,20 @@ import { Analytics } from "../pages/super-admin/analytics/Analytics";
 import { Support } from "../pages/super-admin/support/Support";
 import { Settings as SuperAdminSettings } from "../pages/super-admin/settings/Settings";
 
+// Teacher pages
+import { Dashboard as TeacherDashboard } from "../pages/teacher/dashboard/Dashboard";
+import { ClassList as TeacherClassList } from "../pages/teacher/classes/ClassList";
+import { ClassDetails as TeacherClassDetails } from "../pages/teacher/classes/ClassDetails";
+import { StudentList as TeacherStudentList } from "../pages/teacher/students/StudentList";
+import { StudentDetails as TeacherStudentDetails } from "../pages/teacher/students/StudentDetails";
+import { Attendance as TeacherAttendance } from "../pages/teacher/attendance/Attendance";
+import { MarkAttendance as TeacherMarkAttendance } from "../pages/teacher/attendance/MarkAttendance";
+import { Timetable as TeacherTimetable } from "../pages/teacher/timetable/Timetable";
+import { Settings as TeacherSettings } from "../pages/teacher/settings/Settings";
+
 function AppRoutes() {
+    const { user } = useAuth();
+
     return (
         <Routes>
             {/* Public routes */}
@@ -118,6 +133,24 @@ function AppRoutes() {
             </Route>
 
             {/* ============================================================ */}
+            {/* Teacher routes */}
+            {/* ============================================================ */}
+            <Route path="/teacher" element={<ProtectedRoute />}>
+                <Route element={<TeacherLayout />}>
+                    <Route index element={<Navigate to="/teacher/dashboard" replace />} />
+                    <Route path="dashboard" element={<TeacherDashboard />} />
+                    <Route path="classes" element={<TeacherClassList />} />
+                    <Route path="classes/:id" element={<TeacherClassDetails />} />
+                    <Route path="students" element={<TeacherStudentList />} />
+                    <Route path="students/:id" element={<TeacherStudentDetails />} />
+                    <Route path="attendance" element={<TeacherAttendance />} />
+                    <Route path="attendance/mark" element={<TeacherMarkAttendance />} />
+                    <Route path="timetable" element={<TeacherTimetable />} />
+                    <Route path="settings" element={<TeacherSettings />} />
+                </Route>
+            </Route>
+
+            {/* ============================================================ */}
             {/* Super Admin routes */}
             {/* ============================================================ */}
             <Route path="/super-admin" element={<ProtectedRoute />}>
@@ -154,7 +187,21 @@ function AppRoutes() {
             </Route>
 
             {/* Fallback */}
-            <Route path="*" element={<Navigate to="/institute/dashboard" replace />} />
+            <Route
+                path="*"
+                element={
+                    <Navigate
+                        to={
+                            user?.role === "SUPER_ADMIN"
+                                ? "/super-admin/dashboard"
+                                : user?.role === "TEACHER"
+                                    ? "/teacher/dashboard"
+                                    : "/institute/dashboard"
+                        }
+                        replace
+                    />
+                }
+            />
         </Routes>
     );
 }

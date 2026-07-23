@@ -1,20 +1,30 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Bell, Search, ChevronDown, Settings, LogOut, User, HelpCircle } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "../../utils";
 import { useSidebar } from "../../contexts/SidebarContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useMediaQuery } from "../../hooks";
 import { Avatar } from "../common/Avatar";
 import { useClickOutside } from "../../hooks";
 
 function Navbar({ className, ...props }) {
     const { toggle } = useSidebar();
+    const { logout, user } = useAuth();
+    const navigate = useNavigate();
     const isMobile = useMediaQuery("(max-width: 1023px)");
     const [showProfile, setShowProfile] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const profileRef = useClickOutside(() => setShowProfile(false));
     const notifRef = useClickOutside(() => setShowNotifications(false));
+
+    const handleLogout = async () => {
+        setShowProfile(false);
+        await logout();
+        navigate("/auth/login", { replace: true });
+    };
 
     const today = new Date();
     const formattedDate = format(today, "EEEE, MMMM d, yyyy");
@@ -144,8 +154,8 @@ function Navbar({ className, ...props }) {
                                 className="absolute right-0 mt-2 w-52 rounded-2xl border border-slate-200 bg-white shadow-[0_10px_40px_rgba(0,0,0,0.08)] py-1.5 overflow-hidden"
                             >
                                 <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                                    <p className="text-sm font-semibold text-slate-900">John Doe</p>
-                                    <p className="text-xs text-slate-500">john@example.com</p>
+                                    <p className="text-sm font-semibold text-slate-900">{user?.name || "User"}</p>
+                                    <p className="text-xs text-slate-500">{user?.email || ""}</p>
                                 </div>
                                 <button className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
                                     <User className="h-4 w-4 text-slate-400" />
@@ -160,7 +170,10 @@ function Navbar({ className, ...props }) {
                                     Help
                                 </button>
                                 <div className="border-t border-slate-100 mt-1 pt-1">
-                                    <button className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                    <button
+                                        onClick={handleLogout}
+                                        className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                    >
                                         <LogOut className="h-4 w-4" />
                                         Sign out
                                     </button>

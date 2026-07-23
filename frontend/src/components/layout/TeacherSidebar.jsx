@@ -2,13 +2,10 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     LayoutDashboard,
-    Users,
-    GraduationCap,
     BookOpen,
+    Users,
     CalendarCheck,
-    HeartHandshake,
-    Wallet,
-    BarChart3,
+    Clock,
     Settings,
     LogOut,
     ChevronLeft,
@@ -21,15 +18,12 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useMediaQuery } from "../../hooks";
 
 const navItems = [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/institute/dashboard" },
-    { label: "Students", icon: Users, path: "/institute/students" },
-    { label: "Teachers", icon: GraduationCap, path: "/institute/teachers" },
-    { label: "Classes", icon: BookOpen, path: "/institute/classes" },
-    { label: "Attendance", icon: CalendarCheck, path: "/institute/attendance" },
-    { label: "Parents", icon: HeartHandshake, path: "/institute/parents" },
-    { label: "Fees", icon: Wallet, path: "/institute/fees" },
-    { label: "Reports", icon: BarChart3, path: "/institute/reports" },
-    { label: "Settings", icon: Settings, path: "/institute/settings" },
+    { label: "Dashboard", icon: LayoutDashboard, path: "/teacher/dashboard" },
+    { label: "My Classes", icon: BookOpen, path: "/teacher/classes" },
+    { label: "My Students", icon: Users, path: "/teacher/students" },
+    { label: "Attendance", icon: CalendarCheck, path: "/teacher/attendance" },
+    { label: "Timetable", icon: Clock, path: "/teacher/timetable" },
+    { label: "Settings", icon: Settings, path: "/teacher/settings" },
 ];
 
 const sidebarVariants = {
@@ -37,7 +31,7 @@ const sidebarVariants = {
     closed: { x: "-100%", transition: { type: "spring", stiffness: 300, damping: 30 } },
 };
 
-function Sidebar() {
+function TeacherSidebar() {
     const { isOpen, isCollapsed, close, toggleCollapse } = useSidebar();
     const { logout } = useAuth();
     const navigate = useNavigate();
@@ -65,12 +59,12 @@ function Sidebar() {
             >
                 <div className="flex items-center gap-2.5">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary shadow-lg shadow-indigo-500/25">
-                        <span className="text-sm font-bold text-white">S</span>
+                        <span className="text-sm font-bold text-white">T</span>
                     </div>
                     {(!isCollapsed || isMobile) && (
                         <div className="flex items-center gap-1.5">
                             <span className="text-base font-bold text-white tracking-tight">SMP</span>
-                            <span className="rounded-md bg-primary-500/15 px-1.5 py-0.5 text-[10px] font-medium text-primary-300">v2.0</span>
+                            <span className="rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-300">Teacher</span>
                         </div>
                     )}
                 </div>
@@ -104,7 +98,7 @@ function Sidebar() {
                                 >
                                     {isActive && (
                                         <motion.div
-                                            layoutId="sidebar-active-indicator"
+                                            layoutId="teacher-sidebar-active-indicator"
                                             className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-r-full bg-primary-400"
                                             transition={{ type: "spring", stiffness: 500, damping: 35 }}
                                         />
@@ -210,4 +204,4 @@ function Sidebar() {
     );
 }
 
-export { Sidebar };
+export { TeacherSidebar };

@@ -1,11 +1,50 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, LogIn } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "../../components/common/Button";
 import { TextField } from "../../components/forms/TextField";
 
 function Login() {
     const [showPassword, setShowPassword] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [serverError, setServerError] = useState("");
+
+    const { login } = useAuth();
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setErrors({});
+        setServerError("");
+        setIsSubmitting(true);
+
+        try {
+            const result = await login(email, password);
+            const role = result?.data?.user?.role;
+            if (role === "SUPER_ADMIN") {
+                navigate("/super-admin/dashboard", { replace: true });
+            } else if (role === "TEACHER") {
+                navigate("/teacher/dashboard", { replace: true });
+            } else {
+                navigate("/institute/dashboard", { replace: true });
+            }
+        } catch (err) {
+            if (err.response?.status === 422) {
+                // Validation errors from the API
+                setErrors(err.response.data.errors || {});
+            } else if (err.response?.data?.message) {
+                setServerError(err.response.data.message);
+            } else {
+                setServerError("An unexpected error occurred. Please try again.");
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <div>
@@ -15,13 +54,23 @@ function Login() {
                     Welcome back to Student Management Portal
                 </p>
             </div>
-            <form className="space-y-4">
+
+            {serverError && (
+                <div className="mb-4 rounded-lg bg-danger/10 border border-danger/20 px-4 py-3 text-sm text-danger">
+                    {serverError}
+                </div>
+            )}
+
+            <form className="space-y-4" onSubmit={handleSubmit}>
                 <TextField
                     label="Email"
                     type="email"
                     name="email"
                     placeholder="Enter your email"
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    error={errors.email?.[0]}
                 />
                 <div className="relative">
                     <TextField
@@ -30,6 +79,9 @@ function Login() {
                         name="password"
                         placeholder="Enter your password"
                         required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        error={errors.password?.[0]}
                     />
                     <button
                         type="button"
@@ -58,7 +110,12 @@ function Login() {
                         Forgot password?
                     </Link>
                 </div>
-                <Button type="submit" className="w-full" icon={LogIn}>
+                <Button
+                    type="submit"
+                    className="w-full"
+                    icon={LogIn}
+                    isLoading={isSubmitting}
+                >
                     Sign in
                 </Button>
             </form>

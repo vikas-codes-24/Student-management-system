@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     LayoutDashboard,
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "../../utils";
 import { useSidebar } from "../../contexts/SidebarContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useMediaQuery } from "../../hooks";
 
 const navItems = [
@@ -37,8 +38,15 @@ const sidebarVariants = {
 
 function SuperAdminSidebar() {
     const { isOpen, isCollapsed, close, toggleCollapse } = useSidebar();
+    const { logout } = useAuth();
+    const navigate = useNavigate();
     const location = useLocation();
     const isMobile = useMediaQuery("(max-width: 1023px)");
+
+    const handleLogout = async () => {
+        await logout();
+        navigate("/auth/login", { replace: true });
+    };
 
     const sidebarContent = (
         <div
@@ -135,6 +143,7 @@ function SuperAdminSidebar() {
                 )}
 
                 <button
+                    onClick={handleLogout}
                     className={cn(
                         "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-red-500/5 hover:text-red-400 transition-all duration-200",
                         isCollapsed && !isMobile && "justify-center px-2"
